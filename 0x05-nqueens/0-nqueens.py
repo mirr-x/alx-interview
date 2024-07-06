@@ -1,44 +1,78 @@
 #!/usr/bin/python3
-""" N queens """
+"""
+A module for solving the N Queens problem.
+"""
+
 import sys
 
 
-if len(sys.argv) > 2 or len(sys.argv) < 2:
-    print("Usage: nqueens N")
-    exit(1)
+def solve_queens(n):
+    """
+    Solves the N Queens problem for a given board size `n`.
+    """
+    column = set()
+    pos_diag = set()
+    neg_diag = set()
 
-if not sys.argv[1].isdigit():
-    print("N must be a number")
-    exit(1)
+    results = []
+    board = [[False] * n for _ in range(n)]
 
-if int(sys.argv[1]) < 4:
-    print("N must be at least 4")
-    exit(1)
+    def backtrack(r):
+        """
+        Recursively attempts to place queens row by row.
+        """
+        if r == n:
+            results.append([row[:] for row in board])
+            return
 
-n = int(sys.argv[1])
+        for c in range(n):
+            if c in column or (r + c) in pos_diag or (r - c) in neg_diag:
+                continue
 
+            column.add(c)
+            pos_diag.add(r + c)
+            neg_diag.add(r - c)
+            board[r][c] = True
 
-def queens(n, i=0, a=[], b=[], c=[]):
-    """ find possible positions """
-    if i < n:
-        for j in range(n):
-            if j not in a and i + j not in b and i - j not in c:
-                yield from queens(n, i + 1, a + [j], b + [i + j], c + [i - j])
-    else:
-        yield a
+            backtrack(r + 1)
 
+            column.remove(c)
+            pos_diag.remove(r + c)
+            neg_diag.remove(r - c)
+            board[r][c] = False
 
-def solve(n):
-    """ solve """
-    k = []
-    i = 0
-    for solution in queens(n, 0):
-        for s in solution:
-            k.append([i, s])
-            i += 1
-        print(k)
-        k = []
-        i = 0
+    backtrack(0)
+    return results
 
 
-solve(n)
+def transform_boolean_matrix(matrix):
+    """
+    Transforms a boolean matrix representing a chessboard
+     into a list of row-column pairs where queens are placed.
+    """
+    result = []
+    for row_index, row in enumerate(matrix):
+        for col_index, value in enumerate(row):
+            if value:
+                result.append([row_index, col_index])
+    return result
+
+
+if __name__ == '__main__':
+    if len(sys.argv) != 2:
+        print("Usage: nqueens N")
+        exit(1)
+    inp = 0
+    try:
+        inp = int(sys.argv[1])
+    except ValueError:
+        print("N must be a number")
+        exit(1)
+    if inp < 4:
+        print("N must be at least 4")
+        exit(1)
+
+    results_matrix = solve_queens(inp)
+
+    for r in results_matrix:
+        print(transform_boolean_matrix(r))
