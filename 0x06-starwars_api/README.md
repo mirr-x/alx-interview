@@ -1,1 +1,1 @@
-# 0x06-starwars api
+# 0-starwars_characters.js
